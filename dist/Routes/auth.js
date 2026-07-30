@@ -33,14 +33,19 @@ user.post("/signup", async (req, res) => {
             });
         }
         const hashedpassword = await bcrypt_1.default.hash(user.data.password, 10);
-        await userModel_1.default.create({
+        const userparse = new userModel_1.default({
             firstname: user.data.firstname,
             lastname: user.data.lastname,
             email: user.data.email,
             password: hashedpassword
         });
+        await userparse.save();
+        const token = jsonwebtoken_1.default.sign({
+            userId: userparse._id
+        }, process.env.JWT_SECRET, { expiresIn: "7d" });
         return res.status(200).json({
             message: "you are successfully signedup",
+            token: token,
             success: true
         });
     }

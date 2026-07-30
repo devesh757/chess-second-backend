@@ -34,15 +34,22 @@ user.post("/signup",async(req:Request,res:Response) =>{
 
    const hashedpassword = await bcrypt.hash(user.data.password,10);
 
-   await User.create({
+   const userparse = new User({
     firstname:user.data.firstname,
     lastname:user.data.lastname,
     email:user.data.email,
     password:hashedpassword
    })
+   await userparse.save();
+ const token = jwt.sign({
+    userId:userparse._id
+ },process.env.JWT_SECRET as string,{expiresIn:"7d"})
+
+
 
    return res.status(200).json({
     message: "you are successfully signedup",
+    token:token,
     success:true
    })
 
